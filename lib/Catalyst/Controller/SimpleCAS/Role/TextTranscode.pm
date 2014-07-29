@@ -1,9 +1,10 @@
-package Catalyst::Controller::SimpleCAS::TextTranscode;
-our $VERSION = '0.01';
-use Moose;
-use namespace::autoclean;
+package Catalyst::Controller::SimpleCAS::Role::TextTranscode;
 
-BEGIN { extends 'Catalyst::Controller' }
+use strict;
+use warnings;
+
+use MooseX::MethodAttributes::Role 0.29;
+requires qw(Content fetch_content); #  <-- methods of Catalyst::Controller::SimpleCAS
 
 use RapidApp::Include qw(sugar perlutil);
 use Encode;
@@ -17,10 +18,11 @@ use String::Random;
 
 use Catalyst::Controller::SimpleCAS::MimeUriResolver;
 
-
+# FIXME - This is old and broken - file long gone from RapidApp ...
 my $ISOLATE_CSS_RULE = '@import "/static/rapidapp/css/CssIsolation.css";';
 
-sub transcode_html: Local  {
+# Backend action for Ext.ux.RapidApp.Plugin.HtmlEditor.LoadHtmlFile
+sub transcode_html: Path('texttranscode/transcode_html')  {
   my ($self, $c) = @_;
   
   my $upload = $c->req->upload('Filedata') or die "no upload object";
@@ -43,7 +45,8 @@ sub transcode_html: Local  {
   return $c->res->body($dest_octets);
 }
 
-sub generate_mhtml_download: Local {
+# Backend action for Ext.ux.RapidApp.Plugin.HtmlEditor.SaveMhtml
+sub generate_mhtml_download: Path('texttranscode/generate_mhtml_download') {
   my ($self, $c) = @_;
   die "No html content supplied" unless ($c->req->params->{html_enc});
   my $html = decode_json($c->req->params->{html_enc})->{data};
@@ -86,6 +89,7 @@ sub html_to_mhtml {
   
   my $style = $self->parse_html_get_styles(\$html,1);
   
+  # FIXME - this is broken:
   # strip isolate css import rule:
   $style =~ s/\Q$ISOLATE_CSS_RULE\E//g;
   
@@ -116,13 +120,14 @@ sub html_to_mhtml {
     $style = $Css->write;
   }
   
+  # TODO/FIXME: remove RapidApp/TT dependency/entanglement
   $html = $c->template_render('templates/rapidapp/xhtml_document.tt',{
     style => $style, 
     body => $html
   });
   
   my $UriResolver = Catalyst::Controller::SimpleCAS::MimeUriResolver->new({
-    Cas => $c->controller('SimpleCAS'),
+    Cas => $self,
     base => ''
   });
   
@@ -186,9 +191,8 @@ sub normaliaze_rich_content {
     }
     # Binary
     else {
-      my $Cas = $c->controller('SimpleCAS');
-      my $checksum = $Cas->Store->add_content_file_mv($upload->tempname) or die "Failed to add content";
-      my $Content = $Cas->Content($checksum,$upload->filename);
+      my $checksum = $self->Store->add_content_file_mv($upload->tempname) or die "Failed to add content";
+      my $Content = $self->Content($checksum,$upload->filename);
       return $Content->imglink if ($Content->imglink);
       return $Content->filelink;
     }
@@ -459,20 +463,18 @@ sub embedded_src_data_to_url {
   my $c = shift;
   my $url = shift;
   
-  my $Cas = $c->controller('SimpleCAS');
-  
   my ($pre,$content_type,$encoding,$base64_data) = split(/[\:\;\,]/,$url);
   
   # we only know how to handle base64 currently:
   return undef unless (lc($encoding) eq 'base64');
   
-  my $checksum = try{$Cas->Store->add_content_base64($base64_data)}
+  my $checksum = try{$self->Store->add_content_base64($base64_data)}
     or return undef;
   
-  # TODO: The Url path should be supplied by SimpleCas!! I seem to recall there was
-  # some issue during the original development that led me to put it in the javascript
-  # side as a quick hack. Need to revisit and properly abstract
-  return "/simplecas/fetch_content/$checksum";
+  return join('/','',
+    $self->action_namespace($c),
+    'fetch_content', $checksum
+  );
 }
 
 sub mime_part_to_cas_url {
@@ -480,13 +482,14 @@ sub mime_part_to_cas_url {
   my $c = shift;
   my $Part = shift;
   
-  my $Cas = $c->controller('SimpleCAS');
-  
   my $data = $Part->body;
   my $filename = $Part->filename(1);
-  my $checksum = $Cas->Store->add_content($data) or return undef;
+  my $checksum = $self->Store->add_content($data) or return undef;
   
-  return "/simplecas/fetch_content/$checksum/$filename";
+  return join('/','',
+    $self->action_namespace($c),
+    'fetch_content', $checksum, $filename
+  );
 }
 
 1;

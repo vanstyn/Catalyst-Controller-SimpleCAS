@@ -11,6 +11,9 @@ use Types::Standard qw(:all);
 use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller' }
+with 'Catalyst::Controller::SimpleCAS::Role::TextTranscode';
+
+use Catalyst::Controller::SimpleCAS::Content;
 
 use Module::Runtime;
 use Try::Tiny;
