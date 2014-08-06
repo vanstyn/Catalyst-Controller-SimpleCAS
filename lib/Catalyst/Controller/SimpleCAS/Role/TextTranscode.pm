@@ -493,3 +493,78 @@ sub mime_part_to_cas_url {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Catalyst::Controller::SimpleCAS::Role::TextTranscode - Addl MHTML methods for SimpleCAS
+
+=head1 SYNOPSIS
+
+ use Catalyst::Controller::SimpleCAS;
+ ...
+
+=head1 DESCRIPTION
+
+This is a Role which adds extra methods and functionality to L<Catalyst::Controller::SimpleCAS>.
+This role is automatically loaded into the main controller class. The reason that this exists and
+is structured this way is for historical reasons and will likely be refactored later.
+
+
+=head1 PUBLIC ACTIONS
+
+=head2 transcode_html (texttranscode/transcode_html)
+
+=head2 generate_mhtml_download  (texttranscode/generate_mhtml_download)
+
+=head1 METHODS
+
+=head2 convert_data_uri_scheme_links
+
+=head2 convert_from_mhtml
+
+=head2 convert_mhtml_links_parts
+
+=head2 embedded_src_data_to_url
+
+=head2 get_mime_part_base_path
+
+=head2 get_strip_orig_filename
+
+=head2 html_to_mhtml
+
+=head2 mime_part_to_cas_url
+
+=head2 normaliaze_rich_content
+
+=head2 parse_html_base_href
+
+=head2 parse_html_get_body
+
+=head2 parse_html_get_style_body
+
+=head2 parse_html_get_styles
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<Catalyst::Controller::SimpleCAS>
+
+=back
+
+=head1 AUTHOR
+
+Henry Van Styn <vanstyn@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by IntelliTree Solutions llc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

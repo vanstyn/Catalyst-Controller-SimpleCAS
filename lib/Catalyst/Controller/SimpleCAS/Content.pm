@@ -132,3 +132,79 @@ sub content {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Catalyst::Controller::SimpleCAS::Content - Content object class for SimpleCAS
+
+=head1 SYNOPSIS
+
+ use Catalyst::Controller::SimpleCAS;
+ ...
+
+=head1 DESCRIPTION
+
+This object class is used to represent an individual content entity within a SimpleCAS Store.
+This is used internally and is not meant to be called/used directly.
+
+=head1 ATTRIBUTES
+
+=head2 Store
+
+=head2 checksum
+
+=head2 filename
+
+=head2 MIME
+
+=head2 mimetype
+
+=head2 image_size 
+
+=head2 size 
+
+=head2 fetch_url_path
+
+=head2 src_url
+
+=head2 file_ext
+
+=head2 filelink_css_class
+
+=head2 filelink
+
+=head2 img_size
+
+=head2 imglink
+
+
+=head1 METHODS
+
+=head2 content
+
+=head2 fh
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<Catalyst::Controller::SimpleCAS>
+
+=back
+
+=head1 AUTHOR
+
+Henry Van Styn <vanstyn@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by IntelliTree Solutions llc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
