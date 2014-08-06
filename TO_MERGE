@@ -1,0 +1,5 @@
+This is the last commit which still has the dummy
+"Git" Store which was never finished. It is being
+kept in a branch in case it is useful someday...
+
+See Catalyst::Controller::SimpleCAS::Store::Git
