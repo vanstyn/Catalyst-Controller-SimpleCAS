@@ -251,7 +251,7 @@ storage) name/address, in this case, standard 40 character SHA1 hex strings (160
 the same thing that Git does, which was the original inspiration for the SimpleCAS module.
 
 Currently, this is the only Store class, but others could be implemented and the system was
-designed with this in mind (i.e. a DBIC-based store). Also, the implemenmtation need not use the 
+designed with this in mind (i.e. a DBIC-based store). Also, the implementation need not use the 
 40-char sha1 addresses - any content/checksum system for IDs could be implemented.
 
 Also note that an actual Git-based store was partially written, but never finished. See the branch

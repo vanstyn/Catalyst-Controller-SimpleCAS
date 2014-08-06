@@ -350,7 +350,7 @@ calling C<new()>) with the C<store_path> supplied to the constructor.
 =head2 upload_content
 
 Upload new content to the CAS and return the sha1 checksum in the body to be able to access it later. 
-Because of the CAS design, the system automatically de-duplicates, and will only ever store
+Because of the CAS design, the system automatically deduplicates, and will only ever store
 a single copy of a given unique piece of content in the Store. 
 
 =head2 fetch_content
@@ -397,7 +397,7 @@ height/width proportions accordingly, and the new, resized image is what is stor
 Otherwise, the image is not resized, but resized dimensions are returned in the JSON packet
 so the client can generate an C<img> tag for display.
 
-Originally, L<Image::Resize> was a standard dependency, but this can be a PITA to get innstalled
+Originally, L<Image::Resize> was a standard dependency, but this can be a PITA to get installed
 with all of the dependencies of L<GD>.
 
 =head2 upload_echo_base64
