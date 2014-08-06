@@ -8,7 +8,7 @@ perl:
    - "5.10"
    - "5.8"
 install:
-   - cpanm --quiet --notest --skip-satisfied Dist::Zilla
+   - cpanm --quiet --notest --skip-satisfied Dist::Zilla Devel::Cover::Report::Coveralls
    - "dzil authordeps | cpanm --quiet --notest --skip-satisfied"
    # TODO: remove '--notest' below as soon as Email::MIME::CreateHTML is fixed for 5.18
    - "dzil listdeps   | cpanm --quiet --notest --skip-satisfied"
