@@ -327,6 +327,11 @@ Catalyst::Controller::SimpleCAS - General-purpose content-addressed storage (CAS
 This controller provides a simple content-addressed storage backend for Catalyst applications. 
 
 This module was originally developed within L<RapidApp> before being extracted into its own module.
+This is a preliminary version which matches what was in RapidApp (and is still rough around the
+edges, poor test coverage, incomplete docs, etc). Subsequent versions will be polished better, as 
+well as have API changes and improvements... 
+
+Other than for RapidApp itself, it is not suggested that this module be used yet in production...
 
 
 =head1 ATTRIBUTES
