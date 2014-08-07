@@ -315,7 +315,7 @@ __END__
 
 =head1 NAME
 
-Catalyst::Controller::SimpleCAS - General-purpose content-addressed storage (CAS) module
+Catalyst::Controller::SimpleCAS - General-purpose content-addressed storage (CAS) for Catalyst
 
 =head1 SYNOPSIS
 
