@@ -1,4 +1,4 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
-1.00 2014-??-??
-    - Initial release
+0.990 2014-08-06
+    - Initial CPAN release, ported mostly "as-is" from RapidApp
