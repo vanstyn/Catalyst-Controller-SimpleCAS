@@ -10,8 +10,7 @@ perl:
 install:
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla Devel::Cover::Report::Coveralls
    - "dzil authordeps | cpanm --quiet --notest --skip-satisfied"
-   # TODO: remove '--notest' below as soon as Email::MIME::CreateHTML is fixed for 5.18
-   - "dzil listdeps   | cpanm --quiet --notest --skip-satisfied"
+   - "dzil listdeps   | cpanm --quiet --skip-satisfied"
 script:
    - HARNESS_PERL_SWITCHES=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine dzil test --author --release --keep
 after_success:
