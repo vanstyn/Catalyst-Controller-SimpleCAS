@@ -4,7 +4,6 @@ use Moose;
 use strict;
 
 use Email::MIME::CreateHTML::Resolver::LWP;
-use RapidApp::Include qw(sugar perlutil);
 
 has 'Cas' => (
   is => 'ro',

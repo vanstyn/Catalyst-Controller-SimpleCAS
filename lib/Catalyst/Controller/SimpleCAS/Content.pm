@@ -2,7 +2,6 @@
 package Catalyst::Controller::SimpleCAS::Content;
 use Moose;
 
-use RapidApp::Include qw(sugar perlutil);
 use Email::MIME;
 use Image::Size;
 

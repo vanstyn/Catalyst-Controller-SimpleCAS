@@ -6,7 +6,6 @@ use warnings;
 use MooseX::MethodAttributes::Role 0.29;
 requires qw(Content fetch_content); #  <-- methods of Catalyst::Controller::SimpleCAS
 
-use RapidApp::Include qw(sugar perlutil);
 use Encode;
 use HTML::Encoding 'encoding_from_html_document', 'encoding_from_byte_order_mark';
 use HTML::TokeParser::Simple;
@@ -37,7 +36,7 @@ sub transcode_html: Path('texttranscode/transcode_html')  {
   
   # find out what encoding the user wants, defaulting to utf8
   my $dest_encoding= ($c->req->params->{dest_encoding} || 'utf-8');
-  my $out_codec= find_encoding($dest_encoding) or die usererr "Unsupported encoding: $dest_encoding";
+  my $out_codec= find_encoding($dest_encoding) or die "Unsupported encoding: $dest_encoding";
   my $dest_octets= $out_codec->encode($src_text);
   
   # we need to set the charset here so that catalyst doesn't try to convert it further

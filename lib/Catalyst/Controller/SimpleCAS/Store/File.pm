@@ -3,8 +3,6 @@ package Catalyst::Controller::SimpleCAS::Store::File;
 use warnings;
 use Moose;
 
-use RapidApp::Include qw(sugar perlutil);
-
 use File::MimeInfo::Magic;
 use Image::Size;
 use Digest::SHA1;
