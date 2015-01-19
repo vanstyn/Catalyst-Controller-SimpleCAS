@@ -9,6 +9,7 @@ use Digest::SHA1;
 use IO::File;
 use Data::Dumper;
 use MIME::Base64;
+use Try::Tiny;
 
 use IO::All;
 
@@ -54,7 +55,16 @@ sub add_content_file {
   
   my $save_path = $self->checksum_to_path($checksum,1);
   
-  link $file, $save_path or die "Failed to create link";
+  try {
+    # This is cleaner, but will fail for various reasons like source/dest 
+    # on different file systems:
+    link $file, $save_path or die "Failed to create hard link: '$file' -> '$save_path'";
+  }
+  catch {
+    # Fall back to shell out to 'mv'
+    system('mv', $file, $save_path) == 0
+      or die "SimpleCAS: Failed to move file '$file' -> '$save_path'";
+  };
   
   return $checksum;
 }

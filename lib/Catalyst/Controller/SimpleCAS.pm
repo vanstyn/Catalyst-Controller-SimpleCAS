@@ -134,17 +134,17 @@ sub upload_image: Local  {
   
   my ($checksum,$width,$height,$orig_width,$orig_height);
   
-  try {
-    # Will die unless Image::Resize is available, which is now optional (Github Issue #42)
+  if($self->_is_image_resize_available) {
+    # When Image::Resize is available:
     ($checksum,$width,$height,$resized,$orig_width,$orig_height) 
       = $self->add_resize_image($upload->tempname,$type,$subtype,$maxwidth,$maxheight);
   }
-  catch {
+  else {
     # Fall-back calculates new image size without actually resizing it. The img
     # tag will still be smaller, but the image file will be original dimensions
     ($checksum,$width,$height,$shrunk,$orig_width,$orig_height) 
       = $self->add_size_info_image($upload->tempname,$type,$subtype,$maxwidth,$maxheight);
-  };
+  }
   
   
   unlink $upload->tempname;
@@ -170,13 +170,17 @@ sub upload_image: Local  {
   return $c->res->body(JSON::DWIW->to_json($packet));
 }
 
+sub _is_image_resize_available {
+  my $flag = 1;
+  try   { Module::Runtime::require_module('Image::Resize') }
+  catch { $flag = 0 };
+  $flag
+}
 
 
 sub add_resize_image :Private {
   my ($self,$file,$type,$subtype,$maxwidth,$maxheight) = @_;
   
-  Module::Runtime::require_module('Image::Resize');
-
   my $checksum = $self->Store->add_content_file($file) or die "Failed to add content";
   
   my $resized = \0;
