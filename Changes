@@ -1,5 +1,11 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.992 2015-01-19
+    - Added support for forwarding to a view for JSON rendering, 
+      and this now defaults to the view 'RapidApp::JSON' if present
+    - Misc logic/code cleanup
+    - Switched from JSON::DWIW back to normal JSON
+
 0.991 2014-08-20
     - Freed up rouge RapidApp include/dep
     - Misc Travis/dist tweaks
