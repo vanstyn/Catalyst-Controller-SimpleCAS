@@ -10,6 +10,7 @@ use IO::File;
 use Data::Dumper;
 use MIME::Base64;
 use Try::Tiny;
+use Path::Class qw( file dir );
 
 use IO::All;
 
@@ -212,25 +213,9 @@ sub content_size {
   
   my $file = $self->checksum_to_path($checksum);
   
-  return xstat($file)->{size};
+  return file($file)->stat->size;
 }
 
-
-# Moved into RapidApp::Functions
-#sub xstat {
-#  my $self = shift;
-#  my $file = shift;
-#
-#  return undef unless (-e $file);
-#
-#  my $h = {};
-#
-#  ($h->{dev},$h->{ino},$h->{mode},$h->{nlink},$h->{uid},$h->{gid},$h->{rdev},
-#       $h->{size},$h->{atime},$h->{mtime},$h->{ctime},$h->{blksize},$h->{blocks})
-#              = stat($file);
-#
-#  return $h;
-#}
 
 
 #### --------------------- ####
