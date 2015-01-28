@@ -1,5 +1,8 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.993 2015-01-28
+    - Fixed broken content_size method
+
 0.992 2015-01-19
     - Added support for forwarding to a view for JSON rendering, 
       and this now defaults to the view 'RapidApp::JSON' if present
