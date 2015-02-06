@@ -19,7 +19,7 @@ use JSON;
 use Catalyst::Controller::SimpleCAS::MimeUriResolver;
 
 # FIXME - This is old and broken - file long gone from RapidApp ...
-my $ISOLATE_CSS_RULE = '@import "/static/rapidapp/css/CssIsolation.css";';
+my $ISOLATE_CSS_RULE = ''; #'@import "/static/rapidapp/css/CssIsolation.css";';
 
 # Backend action for Ext.ux.RapidApp.Plugin.HtmlEditor.LoadHtmlFile
 sub transcode_html: Path('texttranscode/transcode_html')  {
@@ -495,7 +495,10 @@ sub embedded_src_data_to_url {
   my $checksum = try{$self->Store->add_content_base64($base64_data)}
     or return undef;
   
-  return join('/','',
+  # This is RapidApp-specific
+  my $pfx = $c->can('mount_url') ? $c->mount_url || '' : '';
+  
+  return join('/',$pfx,
     $self->action_namespace($c),
     'fetch_content', $checksum
   );
@@ -510,7 +513,10 @@ sub mime_part_to_cas_url {
   my $filename = $Part->filename(1);
   my $checksum = $self->Store->add_content($data) or return undef;
   
-  return join('/','',
+  # This is RapidApp-specific
+  my $pfx = $c->can('mount_url') ? $c->mount_url || '' : '';
+  
+  return join('/',$pfx,
     $self->action_namespace($c),
     'fetch_content', $checksum, $filename
   );
