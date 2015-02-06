@@ -14,6 +14,7 @@ use Email::MIME;
 use Email::MIME::CreateHTML;
 use CSS::Simple;
 use String::Random;
+use JSON;
 
 use Catalyst::Controller::SimpleCAS::MimeUriResolver;
 
@@ -36,7 +37,7 @@ sub transcode_html: Path('texttranscode/transcode_html')  {
   
   # find out what encoding the user wants, defaulting to utf8
   my $dest_encoding= ($c->req->params->{dest_encoding} || 'utf-8');
-  my $out_codec= find_encoding($dest_encoding) or die "Unsupported encoding: $dest_encoding";
+  my $out_codec= Encode::find_encoding($dest_encoding) or die "Unsupported encoding: $dest_encoding";
   my $dest_octets= $out_codec->encode($src_text);
   
   # we need to set the charset here so that catalyst doesn't try to convert it further
@@ -162,11 +163,6 @@ sub normaliaze_rich_content {
     $src_octets = $upload->slurp;
   }
   
-  if($upload) {
-    scream($upload->type);
-  
-  }
-  
   my $content;
   
   # Try to determine what text encoding the file content came from, and then detect if it 
@@ -185,7 +181,7 @@ sub normaliaze_rich_content {
   else {
     if(!$upload || $upload->type =~ /^text/){
       my $src_encoding= encoding_from_html_document($src_octets) || 'utf-8';
-      my $in_codec= find_encoding($src_encoding) or die "Unsupported encoding: $src_encoding";
+      my $in_codec= Encode::find_encoding($src_encoding) or die "Unsupported encoding: $src_encoding";
       $content = (utf8::is_utf8($src_octets)) ? $src_octets : $in_codec->decode($src_octets);
     }
     # Binary
