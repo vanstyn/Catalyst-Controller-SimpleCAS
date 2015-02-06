@@ -1,5 +1,13 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.994 2015-02-06
+    - Fixed broken code within TextTranscode
+    - Load from mhtml now aggressively tries to figure out *real* encoding
+      for the MIME part/wrapper. It is now able to properly decode files
+      saved by Word 2010 which actually use 'UTF-16LE' and should also be
+      able to handle other scenarios too
+    - Support for mount_url prefix (only applies to RapidApp)
+
 0.993 2015-01-28
     - Fixed broken content_size method
 

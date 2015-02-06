@@ -4,7 +4,7 @@ use warnings;
 
 # ABSTRACT: General-purpose content-addressed storage (CAS) for Catalyst
 
-our $VERSION = '0.993';
+our $VERSION = '0.994';
 
 use Moose;
 use Types::Standard qw(:all);
