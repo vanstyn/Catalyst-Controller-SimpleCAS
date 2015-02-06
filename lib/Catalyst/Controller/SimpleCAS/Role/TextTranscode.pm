@@ -222,7 +222,36 @@ sub convert_from_mhtml {
   ## --
   
   my ($MainPart) = $MIME->subparts or return;
-  my $html = $MainPart->body_str;
+
+  ## ------
+  ## New: throw the kitchen sink at trying to figure out the charset/encoding
+  ##
+  ## This solves the long-standing problem where MHT files saved by Word 2010
+  ## would load garbled. These files are encoded as 'UTF-16LE', and the system
+  ## is not able to realize this out of the box (I think because it lists the
+  ## the charset ambiguously as ' charset="unicode" ' in the Content-Type
+  ## MIME header, but I'm no expert on Unicode). Below we're basically trying 
+  ## all of the functions of HTML::Encoding until we find one that gives us
+  ## an answer, and if we do get an answer, we apply it to the MIME object before
+  ## calling ->body_str() which will then use it to decode to text.
+  ##
+  my $decoded = $MainPart->body; # <-- decodes from base64 (or whatever) to *bytes*
+
+  my $char_set =
+    HTML::Encoding::encoding_from_html_document   ($decoded) ||
+    HTML::Encoding::encoding_from_byte_order_mark ($decoded) ||
+    HTML::Encoding::encoding_from_meta_element    ($decoded) ||
+    HTML::Encoding::xml_declaration_from_octets   ($decoded) ||
+    HTML::Encoding::encoding_from_first_chars     ($decoded) ||
+    HTML::Encoding::encoding_from_xml_declaration ($decoded) ||
+    HTML::Encoding::encoding_from_content_type    ($decoded) ||
+    HTML::Encoding::encoding_from_xml_document    ($decoded);
+
+  $MainPart->charset_set( $char_set ) if ($char_set);
+  ## ------
+
+  my $html = $MainPart->body_str; # <-- decodes to text using the character_set
+
   my $base_path = $self->parse_html_base_href(\$html) || $self->get_mime_part_base_path($MainPart);
   
   my %ndx = ();
