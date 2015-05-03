@@ -76,8 +76,10 @@ sub uri_find_Content {
   return undef;
 }
 
-sub fetch_content: Local {
-   my ($self, $c, $checksum, $filename) = @_;
+sub base :Chained :PathPrefix :CaptureArgs(0) {}
+
+sub fetch_content :Chained('base') :Args {
+  my ($self, $c, $checksum, $filename) = @_;
   
   my $disposition = 'inline;filename="' . $checksum . '"';
   
@@ -112,7 +114,7 @@ sub fetch_content: Local {
 }
 
 
-sub upload_content: Local  {
+sub upload_content :Chained('base') :Args {
   my ($self, $c) = @_;
 
   my $upload = $c->req->upload('Filedata') or die "no upload object";
@@ -122,7 +124,7 @@ sub upload_content: Local  {
 }
 
 
-sub upload_image: Local  {
+sub upload_image :Chained('base') :Args {
   my ($self, $c, $maxwidth, $maxheight) = @_;
 
   my $upload = $c->req->upload('Filedata') or die "no upload object";
@@ -268,7 +270,7 @@ sub add_size_info_image :Private {
 }
 
 
-sub upload_file : Local {
+sub upload_file :Chained('base') :Args {
   my ($self, $c) = @_;
   
   my $upload = $c->req->upload('Filedata') or die "no upload object";
@@ -296,7 +298,7 @@ sub safe_filename {
 }
 
 
-sub upload_echo_base64: Local  {
+sub upload_echo_base64 :Chained('base') :Args {
   my ($self, $c) = @_;
 
   my $upload = $c->req->upload('Filedata') or die "no upload object";
