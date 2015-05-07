@@ -429,7 +429,6 @@ When there is no filename second arg supplied, the content-disposition is set li
 
   Content-Disposition: inline;filename="fdb379f7e9c8d0a1fcd3b5ee4233d88c5a4a023e"
 
-
 =head2 upload_file
 
 Works like C<upload_content>, but returns a JSON packet with additional metadata/information in
@@ -457,6 +456,16 @@ with all of the dependencies of L<GD>.
 
 This does nothing but accept a standard POST/Filedata upload and return it as base64 in a JSON
 packet within the JSON/object key C<echo_content>.
+
+=head2 base
+
+This is the base action of the Catalyst Chain behind this asset controller. So
+far it still is a fixed position, but we will allow in a later version to set
+the Chained base to any other action via configuration.
+
+You could override specific URLs inside the SimpleCAS with own controllers,
+you just chain to this base controller, but we would strongly advice to put
+those outside functionalities next to this controller.
 
 =head1 METHODS
 
