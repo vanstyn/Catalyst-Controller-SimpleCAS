@@ -22,7 +22,7 @@ use Catalyst::Controller::SimpleCAS::MimeUriResolver;
 my $ISOLATE_CSS_RULE = ''; #'@import "/static/rapidapp/css/CssIsolation.css";';
 
 # Backend action for Ext.ux.RapidApp.Plugin.HtmlEditor.LoadHtmlFile
-sub transcode_html: Path('texttranscode/transcode_html')  {
+sub transcode_html :Chained('base') :PathPart('texttranscode/transcode_html')  {
   my ($self, $c) = @_;
   
   my $upload = $c->req->upload('Filedata') or die "no upload object";
@@ -46,7 +46,7 @@ sub transcode_html: Path('texttranscode/transcode_html')  {
 }
 
 # Backend action for Ext.ux.RapidApp.Plugin.HtmlEditor.SaveMhtml
-sub generate_mhtml_download: Path('texttranscode/generate_mhtml_download') {
+sub generate_mhtml_download :Chained('base') :PathPart('texttranscode/generate_mhtml_download') {
   my ($self, $c) = @_;
   die "No html content supplied" unless ($c->req->params->{html_enc});
   my $html = decode_json($c->req->params->{html_enc})->{data};
