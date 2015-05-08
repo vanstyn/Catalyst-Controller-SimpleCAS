@@ -1,5 +1,8 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.995 2015-05-08
+    - Switch to Chained controller actions - PR #1 (GETTY)
+
 0.994 2015-02-06
     - Fixed broken code within TextTranscode
     - Load from mhtml now aggressively tries to figure out *real* encoding
