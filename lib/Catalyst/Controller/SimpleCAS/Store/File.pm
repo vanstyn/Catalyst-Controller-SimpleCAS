@@ -3,30 +3,22 @@ package Catalyst::Controller::SimpleCAS::Store::File;
 use warnings;
 use Moose;
 
-use File::MimeInfo::Magic;
-use Image::Size;
-use Digest::SHA1;
-use IO::File;
+with qw(
+  Catalyst::Controller::SimpleCAS::Store
+);
+
 use Data::Dumper;
-use MIME::Base64;
+use IO::File;
 use Try::Tiny;
 use Path::Class qw( file dir );
-
 use IO::All;
 
 has 'store_dir' => ( is => 'ro', isa => 'Str', required => 1 );
-
 
 sub init_store_dir {
   my $self = shift;
   return if (-d $self->store_dir);
   mkdir $self->store_dir or die "Failed to create directory: " . $self->store_dir;
-}
-
-sub add_content_base64 {
-  my $self = shift;
-  my $data = decode_base64(shift) or die "Error decoding base64 data. $@";
-  return $self->add_content($data);
 }
 
 sub add_content {
@@ -70,6 +62,12 @@ sub add_content_file {
   return $checksum;
 }
 
+sub split_checksum {
+  my $self = shift;
+  my $checksum = shift;
+
+  return ( substr($checksum,0,2), substr($checksum,2) );
+}
 
 sub add_content_file_mv {
   my $self = shift;
@@ -80,7 +78,7 @@ sub add_content_file_mv {
   my $checksum = $self->file_checksum($file);
   if ($self->content_exists($checksum)) {
     unlink $file;
-    return $checksum
+    return $checksum;
   }
   
   my $save_path = $self->checksum_to_path($checksum,1);
@@ -89,15 +87,6 @@ sub add_content_file_mv {
     or die "SimpleCAS: Failed to move file '$file' -> '$save_path'";
   
   return $checksum;
-}
-
-
-
-sub split_checksum {
-  my $self = shift;
-  my $checksum = shift;
-  
-  return ( substr($checksum,0,2), substr($checksum,2) );
 }
 
 sub checksum_to_path {
@@ -135,91 +124,7 @@ sub content_exists {
   return 0;
 }
 
-sub fetch_content_fh {
-  my $self = shift;
-  my $checksum = shift;
-  
-  my $file = $self->checksum_to_path($checksum);
-  return undef unless ( -f $file);
-  
-  my $fh = IO::File->new();
-  $fh->open('< ' . $file) or die "Failed to open $file for reading.";
-  
-  return $fh;
-}
-
-
-sub content_mimetype {
-  my $self = shift;
-  my $checksum = shift;
-  
-  # See if this is an actual MIME file with a defined Content-Type:
-  my $MIME = try{
-    my $fh = $self->fetch_content_fh($checksum);
-    # only read the begining of the file, enough to make it past the Content-Type header:
-    my $buf; $fh->read($buf,1024); $fh->close;
-    return Email::MIME->new($buf);
-  };
-  if($MIME && $MIME->content_type) {
-    my ($type) = split(/\s*\;\s*/,$MIME->content_type);
-    return $type;
-  }
-  
-  # Otherwise, guess the mimetype from the file on disk
-  my $file = $self->checksum_to_path($checksum);
-  
-  return undef unless ( -f $file );
-  return mimetype($file);
-}
-
-sub calculate_checksum {
-  my $self = shift;
-  my $data = shift;
-  
-  my $sha1 = Digest::SHA1->new->add($data)->hexdigest;
-  return $sha1;
-}
-
-sub file_checksum  {
-  my $self = shift;
-  my $file = shift;
-  
-  my $FH = IO::File->new();
-  $FH->open('< ' . $file) or die "$! : $file\n";
-  $FH->binmode;
-  
-  my $sha1 = Digest::SHA1->new->addfile($FH)->hexdigest;
-  $FH->close;
-  return $sha1;
-}
-
-sub image_size {
-  my $self = shift;
-  my $checksum = shift;
-  
-  my $content_type = $self->content_mimetype($checksum) or return undef;
-  my ($mime_type,$mime_subtype) = split(/\//,$content_type);
-  return undef unless ($mime_type eq 'image');
-  
-  my ($width,$height) = imgsize($self->checksum_to_path($checksum)) or return undef;
-  return ($width,$height);
-}
-
-
-
-sub content_size {
-  my $self = shift;
-  my $checksum = shift;
-  
-  my $file = $self->checksum_to_path($checksum);
-  
-  return file($file)->stat->size;
-}
-
-
-
 #### --------------------- ####
-
 
 no Moose;
 #__PACKAGE__->meta->make_immutable;
