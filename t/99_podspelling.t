@@ -12,7 +12,7 @@ add_stopwords(qw(
     SimpleCAS CAS DBIC sha MHTML Addl checksum fh filelink imglink
     mimetype deduplicates resize resized Cas refactored Filedata
     RapidApp IntelliTree Styn llc functionalities ExtJS SimmpleCAS
-    jsonData
+    jsonData Raudssus ResultSet Torsten resultset
 ));
 
 set_spell_cmd('aspell list -l en');
