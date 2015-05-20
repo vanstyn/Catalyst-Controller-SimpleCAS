@@ -4,7 +4,7 @@ use warnings;
 
 # ABSTRACT: General-purpose content-addressed storage (CAS) for Catalyst
 
-our $VERSION = '0.996';
+our $VERSION = '0.995';
 
 use Moose;
 use Types::Standard qw(:all);
@@ -23,38 +23,24 @@ use JSON;
 use MIME::Base64;
 use String::Random;
 
-has store_class => ( is => 'ro', default => sub {
-  '+File'
-});
 
-has store_path => ( is => 'ro', lazy => 1, default => sub {
+has 'store_class', is => 'ro', default => sub{'Catalyst::Controller::SimpleCAS::Store::File'};
+has 'store_path', is => 'ro', lazy => 1, default => sub {
   my $self = shift;
   my $c = $self->_app;
   # Default Cas Store path if none was supplied in the config:
   return dir( Catalyst::Utils::home($c), 'cas_store' )->stringify;
-});
+};
 
-has store_args => ( is => 'ro', isa => 'HashRef', lazy => 1, default => sub {
-  my $self = shift;
-  return {
-    store_path => $self->store_path,
-  };
-});
-
-has Store => (
-  does => 'Catalyst::Controller::SimpleCAS::Store',
+has 'Store' => (
   is => 'ro',
   lazy => 1,
   default => sub {
     my $self = shift;
     my $class = $self->store_class;
-    if ($class =~ m/^\+([\w:]+)/) {
-      $class = 'Catalyst::Controller::SimpleCAS::Store::'.$1;
-    }
     Module::Runtime::require_module($class);
     return $class->new(
-      simplecas => $self,
-      %{$self->store_args},
+      store_dir => $self->store_path
     );
   }
 );
@@ -358,28 +344,6 @@ sub _json_response {
   }
 }
 
-# Moved checksum functions to SimpleCAS main class, as it should be
-# not related to the Store - GETTY
-sub file_checksum {
-  my $self = shift;
-  my $file = shift;
-  
-  my $FH = IO::File->new();
-  $FH->open('< ' . $file) or die "$! : $file\n";
-  $FH->binmode;
-
-  my $sha1 = Digest::SHA1->new->addfile($FH)->hexdigest;
-  $FH->close;
-  return $sha1;
-}
-
-sub calculate_checksum {
-  my $self = shift;
-  my $data = shift;
-  
-  my $sha1 = Digest::SHA1->new->add($data)->hexdigest;
-  return $sha1;
-}
 
 1;
 
@@ -524,10 +488,6 @@ Not usually called directly
 =head2 uri_find_Content
 
 Not usually called directly
-
-=head2 calculate_checksum
-
-=head2 file_checksum
 
 =head1 SEE ALSO
 
