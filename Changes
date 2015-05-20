@@ -1,5 +1,8 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.997 2015-05-20
+    - REVERT BACK TO v0.995, v0.996 IS BROKEN
+
 0.996 2015-05-20
     - Added DBIC Store class - PR #2 (GETTY)
     - Misc refactoring (GETTY)
