@@ -37,7 +37,7 @@ has store_path => ( is => 'ro', lazy => 1, default => sub {
 has store_args => ( is => 'ro', isa => 'HashRef', lazy => 1, default => sub {
   my $self = shift;
   return {
-    store_path => $self->store_path,
+    store_dir => $self->store_path,
   };
 });
 
