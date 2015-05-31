@@ -38,12 +38,12 @@ sub add_content_base64 {
 sub add_content_file {
   my $self = shift;
   my $file = shift;
-  
+
   my $checksum = $self->file_checksum($file);
 
   return $checksum if ($self->content_exists($checksum));
-  
-  return $self->add_content(scalar(io($file)->slurp_raw));
+
+  return $self->add_content(scalar(io($file)->slurp));
 }
 
 sub add_content_file_mv {
