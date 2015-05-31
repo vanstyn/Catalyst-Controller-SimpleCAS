@@ -38,9 +38,10 @@ sub add_content_file {
   my $file = shift;
   
   my $checksum = $self->file_checksum($file);
+
   return $checksum if ($self->content_exists($checksum));
   
-  return $self->add_content(scalar(io($file)->slurp));
+  return $self->add_content(scalar(io($file)->slurp_raw));
 }
 
 sub add_content_file_mv {
@@ -83,10 +84,10 @@ sub content_mimetype {
     my ($type) = split(/\s*\;\s*/,$MIME->content_type);
     return $type;
   }
-  
+
   # Otherwise, guess the mimetype from the file on disk
   my $file = $self->checksum_to_path($checksum);
-  
+
   return undef unless ( -f $file );
   return mimetype($file);
 }
@@ -103,7 +104,7 @@ sub content_size {
 sub fetch_content_fh {
   my $self = shift;
   my $checksum = shift;
-  
+
   my $file = $self->checksum_to_path($checksum);
   return undef unless ( -f $file);
   

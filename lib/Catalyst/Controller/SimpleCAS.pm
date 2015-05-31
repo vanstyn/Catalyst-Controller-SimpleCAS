@@ -142,14 +142,14 @@ sub upload_image :Chained('base') :Args {
   my ($self, $c, $maxwidth, $maxheight) = @_;
 
   my $upload = $c->req->upload('Filedata') or die "no upload object";
-  
+
   my ($type,$subtype) = split(/\//,$upload->type);
   
   my $resized = \0;
   my $shrunk = \0;
   
   my ($checksum,$width,$height,$orig_width,$orig_height);
-  
+
   if($self->_is_image_resize_available) {
     # When Image::Resize is available:
     ($checksum,$width,$height,$resized,$orig_width,$orig_height) 
@@ -257,6 +257,7 @@ sub add_size_info_image :Private {
   my $shrunk = \0;
 
   my ($width,$height) = $self->Store->image_size($checksum);
+
   my ($orig_width,$orig_height) = ($width,$height);
   if (defined $maxwidth) {
     
