@@ -8,6 +8,7 @@ use IO::File;
 use MIME::Base64;
 use File::MimeInfo::Magic;
 use Image::Size;
+use Email::MIME;
 use IO::All;
 
 has simplecas => (
