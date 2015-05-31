@@ -6,6 +6,7 @@ use Moose::Role;
 use Digest::SHA1;
 use IO::File;
 use MIME::Base64;
+use Try::Tiny;
 use File::MimeInfo::Magic;
 use Image::Size;
 use Email::MIME;
