@@ -2,6 +2,9 @@ package Catalyst::Controller::SimpleCAS::MimeUriResolver;
 use Moose;
 
 use strict;
+use warnings;
+
+use Try::Tiny;
 
 use Email::MIME::CreateHTML::Resolver::LWP;
 
@@ -42,16 +45,19 @@ sub get_resource {
     $xfer_encoding = $Content->MIME->header('Content-Transfer-Encoding');
   }
   else {
-    ($content,$filename,$mimetype,$xfer_encoding) = $self->Resolver->get_resource(@_);
+    try {
+      # TODO:
+      # This will throw an exception if the url is relative:
+      #    "Could not fetch <url> : 400 URL must be absolute"
+      # Relative urls probably indicate it is a resource of the
+      # local application; we should handle this case by setting
+      # up a virtual/internal request. In the mean time, we 
+      # are wrapping in a try block to avoid dumping the whole
+      # request, so at least something can be returned, even if
+      # it is missing some inline images, etc
+      ($content,$filename,$mimetype,$xfer_encoding) = $self->Resolver->get_resource(@_);
+    }
   }
-  #scream($Content);
-  
-  #scream([$uri,$checksum,$fname]);
-  
-  
-  
-  #need this for dokuwiki images to show up:
-  #$xfer_encoding = 'base64';
   
   return ($content,$filename,$mimetype,$xfer_encoding);
 }
