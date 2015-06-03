@@ -23,24 +23,38 @@ use JSON;
 use MIME::Base64;
 use String::Random;
 
+has store_class => ( is => 'ro', default => sub {
+  '+File'
+});
 
-has 'store_class', is => 'ro', default => sub{'Catalyst::Controller::SimpleCAS::Store::File'};
-has 'store_path', is => 'ro', lazy => 1, default => sub {
+has store_path => ( is => 'ro', lazy => 1, default => sub {
   my $self = shift;
   my $c = $self->_app;
   # Default Cas Store path if none was supplied in the config:
   return dir( Catalyst::Utils::home($c), 'cas_store' )->stringify;
-};
+});
 
-has 'Store' => (
+has store_args => ( is => 'ro', isa => 'HashRef', lazy => 1, default => sub {
+  my $self = shift;
+  return {
+    store_dir => $self->store_path,
+  };
+});
+
+has Store => (
+  does => 'Catalyst::Controller::SimpleCAS::Store',
   is => 'ro',
   lazy => 1,
   default => sub {
     my $self = shift;
     my $class = $self->store_class;
+    if ($class =~ m/^\+([\w:]+)/) {
+      $class = 'Catalyst::Controller::SimpleCAS::Store::'.$1;
+    }
     Module::Runtime::require_module($class);
     return $class->new(
-      store_dir => $self->store_path
+      simplecas => $self,
+      %{$self->store_args},
     );
   }
 );
@@ -128,14 +142,14 @@ sub upload_image :Chained('base') :Args {
   my ($self, $c, $maxwidth, $maxheight) = @_;
 
   my $upload = $c->req->upload('Filedata') or die "no upload object";
-  
+
   my ($type,$subtype) = split(/\//,$upload->type);
   
   my $resized = \0;
   my $shrunk = \0;
   
   my ($checksum,$width,$height,$orig_width,$orig_height);
-  
+
   if($self->_is_image_resize_available) {
     # When Image::Resize is available:
     ($checksum,$width,$height,$resized,$orig_width,$orig_height) 
@@ -243,6 +257,7 @@ sub add_size_info_image :Private {
   my $shrunk = \0;
 
   my ($width,$height) = $self->Store->image_size($checksum);
+
   my ($orig_width,$orig_height) = ($width,$height);
   if (defined $maxwidth) {
     
@@ -344,6 +359,28 @@ sub _json_response {
   }
 }
 
+# Moved checksum functions to SimpleCAS main class, as it should be
+# not related to the Store - GETTY
+sub file_checksum {
+  my $self = shift;
+  my $file = shift;
+  
+  my $FH = IO::File->new();
+  $FH->open('< ' . $file) or die "$! : $file\n";
+  $FH->binmode;
+
+  my $sha1 = Digest::SHA1->new->addfile($FH)->hexdigest;
+  $FH->close;
+  return $sha1;
+}
+
+sub calculate_checksum {
+  my $self = shift;
+  my $data = shift;
+  
+  my $sha1 = Digest::SHA1->new->add($data)->hexdigest;
+  return $sha1;
+}
 
 1;
 
@@ -488,6 +525,10 @@ Not usually called directly
 =head2 uri_find_Content
 
 Not usually called directly
+
+=head2 calculate_checksum
+
+=head2 file_checksum
 
 =head1 SEE ALSO
 
