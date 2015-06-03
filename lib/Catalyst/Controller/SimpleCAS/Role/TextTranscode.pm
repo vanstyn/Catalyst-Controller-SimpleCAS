@@ -89,11 +89,12 @@ sub html_to_mhtml {
   
   my $style = $self->parse_html_get_styles(\$html,1);
   
-  # FIXME - this is broken:
-  # strip isolate css import rule:
-  $style =~ s/\Q$ISOLATE_CSS_RULE\E//g;
-  
   if($style) {
+  
+    # FIXME - this is broken:
+    # strip isolate css import rule:
+    $style =~ s/\Q$ISOLATE_CSS_RULE\E//g;
+  
     my $Css = CSS::Simple->new;
     $Css->read({ css => $style });
     
@@ -173,7 +174,11 @@ sub normaliaze_rich_content {
   #   and now we have the original file on disk in its native 8-bit encoding.
 
   # If MIME (MTHML):
-  my $MIME = try{Email::MIME->new($src_octets)};
+  my $MIME = try{
+    # This will frequently produce uninitialized value warnings from Email::Simple::Header,
+    # and I haven't been able to figure out how to stop it
+    Email::MIME->new($src_octets)
+  };
   if($MIME && $MIME->subparts) {
     $content = $self->convert_from_mhtml($c,$MIME);
   }

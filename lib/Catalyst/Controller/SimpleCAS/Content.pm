@@ -30,8 +30,8 @@ has 'MIME' => (
     } if ($self->filename);
   
     return Email::MIME->create(
-      attributes => $attrs,
-      body => $self->content
+      attributes => scalar $attrs,
+      body       => scalar $self->content
     );
 
   }

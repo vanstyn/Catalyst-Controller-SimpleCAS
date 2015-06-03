@@ -1,6 +1,6 @@
 package Catalyst::Controller::SimpleCAS::Store;
 
-use warnings;
+use strict;
 use Moose::Role;
 
 use Digest::SHA1;
@@ -80,6 +80,9 @@ sub content_mimetype {
     my $fh = $self->fetch_content_fh($checksum);
     # only read the begining of the file, enough to make it past the Content-Type header:
     my $buf; $fh->read($buf,1024); $fh->close;
+    
+    # This will frequently produce uninitialized value warnings from Email::Simple::Header,
+    # and I haven't been able to figure out how to stop it
     return Email::MIME->new($buf);
   };
   if($MIME && $MIME->content_type) {
