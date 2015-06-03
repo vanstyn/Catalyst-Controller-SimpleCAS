@@ -1,5 +1,13 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.998 2015-06-03
+    - Added DBIC Store class (for real this time) - PR #4 (GETTY)
+    - Prevent failed get_resource calls from blowing up the entire
+      request/parse (Download as MHT functions) (VANSTYN)
+    - Misc warnings cleanup/fixes, but not all, there are still warnings
+      produced from Email::Simple::Header not solved (VANSTYN)
+    - Requure latest versions of Email::* modules (VANSTYN)
+
 0.997 2015-05-20
     - REVERT BACK TO v0.995, v0.996 IS BROKEN
 
