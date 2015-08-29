@@ -12,7 +12,7 @@ use HTML::TokeParser::Simple;
 use Try::Tiny;
 use Email::MIME;
 use Email::MIME::CreateHTML;
-use CSS::Simple;
+use Catalyst::Controller::SimpleCAS::CSS::Simple; #<-- hack/workaround CSS::Simple busted on CPAN
 use String::Random;
 use JSON;
 
@@ -95,7 +95,7 @@ sub html_to_mhtml {
     # strip isolate css import rule:
     $style =~ s/\Q$ISOLATE_CSS_RULE\E//g;
   
-    my $Css = CSS::Simple->new;
+    my $Css = Catalyst::Controller::SimpleCAS::CSS::Simple->new;
     $Css->read({ css => $style });
     
     #scream_color(BLACK.ON_RED,$Css->get_selectors);
@@ -298,7 +298,7 @@ sub parse_html_get_style_body {
   my $auto_css_id = $auto_css_pre . String::Random->new->randregex('[a-z0-9]{8}');
   
   if($style) {
-    my $Css = CSS::Simple->new;
+    my $Css = Catalyst::Controller::SimpleCAS::CSS::Simple->new;
     $Css->read({ css => $style });
     
     #scream_color(BLACK.ON_RED,$Css->get_selectors);
