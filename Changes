@@ -1,5 +1,9 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.9981 2015-08-29
+    - Bypassed broken dep CSS::Simple with a temp/hack local copy. See 
+      git commit log and RT#105857 for more details (VANSTYN)
+
 0.998 2015-06-03
     - Added DBIC Store class (for real this time) - PR #4 (GETTY)
     - Prevent failed get_resource calls from blowing up the entire
