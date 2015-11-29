@@ -1,5 +1,10 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+0.9982 2015-11-29
+    - Minor bugfix (missing use Path::Class) - apparent leftover regression
+      from DBIC store enhancement/refactoring ~ v0.996 (VANSTYN)
+    - Added Contributors section to dist.ini (VANSTYN)
+
 0.9981 2015-08-29
     - Bypassed broken dep CSS::Simple with a temp/hack local copy. See 
       git commit log and RT#105857 for more details (VANSTYN)
