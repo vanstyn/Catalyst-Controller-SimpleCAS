@@ -11,6 +11,7 @@ use File::MimeInfo::Magic;
 use Image::Size;
 use Email::MIME;
 use IO::All;
+use Path::Class qw( file dir );
 
 has simplecas => (
   isa => 'Catalyst::Controller::SimpleCAS',
