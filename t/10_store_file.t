@@ -16,9 +16,8 @@ use_ok('Catalyst::Controller::SimpleCAS::Store::File');
 
 my $cas_dir= catdir( $Bin, 'tmp', 'cas' );
 
--d $cas_dir or mkdir $cas_dir or die "Can't create tmpdir $cas_dir";
 remove_tree($cas_dir) if -d $cas_dir;
-make_path($cas_dir);
+make_path($cas_dir) or die "Can't create tmpdir $cas_dir";
 
 my $file_cas= new_ok 'Catalyst::Controller::SimpleCAS::Store::File',
 	[ store_dir => $cas_dir ], "create CAS instance on $cas_dir";
