@@ -12,6 +12,8 @@ perl:
 install:
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla
    - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Coveralls
+   # This was failing, install with no tests for now:
+   - cpanm --quiet --notest --skip-satisfied MIME::Parser
    # We're also installing Catalyst w/o tests to keep travis build time down:
    - cpanm --quiet --notest --skip-satisfied Catalyst
    - "dzil authordeps | cpanm --quiet --notest --skip-satisfied"
