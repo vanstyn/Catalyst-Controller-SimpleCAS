@@ -56,7 +56,11 @@ has Store => (
       simplecas => $self,
       %{$self->store_args},
     );
-  }
+  },
+  handles => [qw(
+    file_checksum
+    calculate_checksum
+  )],
 );
 
 #has 'fetch_url_path', is => 'ro', isa => 'Str', default => '/simplecas/fetch_content/';
@@ -357,29 +361,6 @@ sub _json_response {
     $c->res->content_type('application/json; charset=utf-8');
     $c->res->body( $c->stash->{jsonData} );
   }
-}
-
-# Moved checksum functions to SimpleCAS main class, as it should be
-# not related to the Store - GETTY
-sub file_checksum {
-  my $self = shift;
-  my $file = shift;
-  
-  my $FH = IO::File->new();
-  $FH->open('< ' . $file) or die "$! : $file\n";
-  $FH->binmode;
-
-  my $sha1 = Digest::SHA1->new->addfile($FH)->hexdigest;
-  $FH->close;
-  return $sha1;
-}
-
-sub calculate_checksum {
-  my $self = shift;
-  my $data = shift;
-  
-  my $sha1 = Digest::SHA1->new->add($data)->hexdigest;
-  return $sha1;
 }
 
 1;

@@ -13,16 +13,6 @@ use Email::MIME;
 use IO::All;
 use Path::Class qw( file dir );
 
-has simplecas => (
-  isa => 'Catalyst::Controller::SimpleCAS',
-  is => 'ro',
-  required => 1,
-  handles => [qw(
-    file_checksum
-    calculate_checksum
-  )],
-);
-
 requires qw(
   content_exists
   fetch_content
@@ -118,6 +108,28 @@ sub fetch_content_fh {
   $fh->open('< ' . $file) or die "Failed to open $file for reading.";
   
   return $fh;
+}
+
+# All stores should use SHA-1, in order to be able to swap Store modules later on.
+sub file_checksum {
+  my $self = shift;
+  my $file = shift;
+  
+  my $FH = IO::File->new();
+  $FH->open('< ' . $file) or die "$! : $file\n";
+  $FH->binmode;
+
+  my $sha1 = Digest::SHA1->new->addfile($FH)->hexdigest;
+  $FH->close;
+  return $sha1;
+}
+
+sub calculate_checksum {
+  my $self = shift;
+  my $data = shift;
+  
+  my $sha1 = Digest::SHA1->new->add($data)->hexdigest;
+  return $sha1;
 }
 
 1;

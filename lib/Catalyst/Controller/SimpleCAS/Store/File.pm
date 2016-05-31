@@ -10,8 +10,10 @@ with qw(
 use Data::Dumper;
 use IO::File;
 use Try::Tiny;
+use File::Spec::Functions 'catdir', 'catfile';
 use Path::Class qw( file dir );
 use IO::All;
+use File::Copy 'move';
 
 has 'store_dir' => ( is => 'ro', isa => 'Str', required => 1 );
 
@@ -54,9 +56,8 @@ sub add_content_file {
     link $file, $save_path or die "Failed to create hard link: '$file' -> '$save_path'";
   }
   catch {
-    # Fall back to shell out to 'mv'
-    system('mv', $file, $save_path) == 0
-      or die "SimpleCAS: Failed to move file '$file' -> '$save_path'";
+    move($file, $save_path)
+      or die "SimpleCAS: Failed to move file '$file' -> '$save_path': $!";
   };
   
   return $checksum;
@@ -82,8 +83,7 @@ sub add_content_file_mv {
   }
   
   my $save_path = $self->checksum_to_path($checksum,1);
-  
-  system('mv', $file, $save_path) == 0
+  move($file, $save_path)
     or die "SimpleCAS: Failed to move file '$file' -> '$save_path'";
   
   return $checksum;
@@ -98,12 +98,12 @@ sub checksum_to_path {
   
   my ($d, $f) = $self->split_checksum($checksum);
   
-  my $dir = $self->store_dir . '/' . $d;
+  my $dir = catdir($self->store_dir, $d);
   if($init and not -d $dir) {
     mkdir $dir or die "Failed to create directory: " . $dir;
   }
   
-  return $dir . '/' . $f;
+  return catfile( $dir, $f );
 }
 
 sub fetch_content {
