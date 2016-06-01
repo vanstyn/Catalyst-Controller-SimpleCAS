@@ -106,6 +106,12 @@ is left at its default, these are equivelent:
   # same as:
   my $CAS = $c->CAS;
 
+=head2 inject_simplecas_controller
+
+Method which gets called automatically that does the actual injection of the controller into
+the Catalyst application. Should never be called directly. It is being provided in case the
+need arises to hook at this point in the code (i.e. with an around modifier)
+
 =head1 SEE ALSO
 
 =over
