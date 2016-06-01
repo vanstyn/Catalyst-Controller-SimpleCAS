@@ -23,6 +23,8 @@ use JSON;
 use MIME::Base64;
 use String::Random;
 
+use Scalar::Util 'blessed';
+
 has store_class => ( is => 'ro', default => sub {
   '+File'
 });
@@ -63,6 +65,57 @@ has Store => (
   )],
 );
 
+
+### ----------------------------------------------------------------------
+### New sugar/convenience methods:
+###
+sub fetch { 
+  my ($self, $cas_id) = @_;
+  $self->uri_find_Content($cas_id) 
+}
+
+sub fetch_fh {
+  my ($self, $cas_id) = @_;
+  my $checksum = $self->_find_prune_checksum($cas_id) or return undef;
+  $self->Store->fetch_content_fh($checksum)
+}
+
+sub add {
+  my $self = shift;
+  my $cnt = shift;
+  
+  my $content = '';
+  
+  if(my $type = ref $cnt) {
+    if($type eq 'SCALAR') {
+      $content = $$cnt;
+    }
+    elsif(blessed $cnt && $cnt->can('getline')) {
+      while(my $line = $cnt->getline) {
+        $content .= $line;
+      }
+    }
+    else {
+      die "Bad content argument $cnt!";
+    }
+  }
+  else {
+    $content = $cnt;
+  }
+  
+  # Is this a file name?
+  return $self->Store->add_content_file($content) if (
+    length($content) < 1024 && 
+    !($content =~ /\n/) &&
+    -f $content
+  );
+
+  return $self->Store->add_content($content)
+}
+###
+### ----------------------------------------------------------------------
+
+
 #has 'fetch_url_path', is => 'ro', isa => 'Str', default => '/simplecas/fetch_content/';
 
 sub Content {
@@ -74,6 +127,21 @@ sub Content {
     checksum  => $checksum,
     filename  => $filename
   );
+}
+
+# Accepts a free-form string and tries to extract a Cas checksum string from it. If the
+# checksum exists, thr pruned checksum string is returned
+sub _find_prune_checksum {
+  my $self = shift;
+  my $uri = shift or return undef;
+  my @parts = split(/\//,$uri);
+  
+  while (scalar @parts > 0) {
+    my $checksum = shift @parts;
+    next unless ($checksum =~ /^[0-9a-f]{40}$/);
+    return $checksum if ($self->Store->content_exists($checksum));
+  }
+  return undef;
 }
 
 # Accepts a free-form string and tries to extract a Cas checksum and 
@@ -377,17 +445,43 @@ Catalyst::Controller::SimpleCAS - General-purpose content-addressed storage (CAS
  use Catalyst::Controller::SimpleCAS;
  ...
 
+See the SYNOPSIS of L<Catalyst::Plugin::SimpleCAS> for the standard use/examples.
+
 =head1 DESCRIPTION
 
-This controller provides a simple content-addressed storage backend for Catalyst applications. 
+This controller provides a simple content-addressed storage backend for Catalyst applications. The
+concept of content-addressed storage ("CAS") is to store arbitrary content in a simple indexed 
+key/value database where the "key" is the SHA1 checksum of the "value". This is the same design
+and theory used by Git.
 
-This module was originally developed within L<RapidApp> before being extracted into its own module.
-This is a preliminary version which matches what was in RapidApp (and is still rough around the
-edges, poor test coverage, incomplete docs, etc). Subsequent versions will be polished better, as 
-well as have API changes and improvements... 
+This module was originally developed for and within L<RapidApp> before being extracted into its 
+own module. This module provides server-side functionality which can be used for any Catalyst 
+application, however, it is up to the developer to write the associated front-end interfaces to 
+consume its API (unless you are using RapidApp to begin with). RapidApp already has a number of 
+built-in features and interfaces which rely on this module for backend storage, including, 
+C<cas_link> (file attachment columns) and C<cas_img> (image columns) column profiles, as well as 
+the ability to insert images and file links directly within rich template content and C<html> 
+columns using WYSIWYG editors.
 
-Other than for RapidApp itself, it is not suggested that this module be used yet in production...
+The type of content this module is designed to store are simple files (with some extra handling
+for images specifically). For the purposes of security, we rely on the assumption that knowing the 
+checksum of the content is equivalent to being authorized to view that content. So the checksums
+are also considered the authorization tokens to access the data, so keeping the checksums themselves
+secure is the only way to keep the associated data/content secret. If you understand what this means
+B<AND> you feel that this is insufficient security, don't use this module (or, extend it and add 
+whatever additional security/authorization/permission checks you feel are necessary)
 
+Starting in version 1.000 of this module, L<Catalyst::Plugin::SimpleCAS> is now provided and is the
+way RapidApp consumes and uses this module, and is the standard way to use this module in any 
+Catalyst application, for most scenarios. The plugin simply injects a single controller instance of 
+C<Catalyst::Controller::SimpleCAS> as 'SimpleCAS' which is all that is needed for most setups. The 
+only reason to use the controller class directly would be if you needed multiple controllers in the 
+same app, or if you wanted to subclass or do something else fancy.
+
+The ATTRUBUTES listed below can be configured in your Catalyst config in the normal manner using the 
+C'<Controller::SimpleCAS'> config key (assuming you used L<Catalyst::Plugin::SimpleCAS> with the
+default C<controller_namespace> of 'SimpleCAS'). No options are required, with the defaults being
+sufficient in most cases (including the way this module is used by L<RapidApp>).
 
 =head1 ATTRIBUTES
 
@@ -398,7 +492,19 @@ C<Catalyst::Controller::SimpleCAS::Store::File>
 
 =head2 store_path
 
-Directory/path to be used by the Store. Defaults to C<cas_store> within the Catalyst home directory.
+Directory/path to be used by the Store. Defaults to C<cas_store/> within the Catalyst home directory.
+This is a convenience param to supply to the Store, which becomes C<store_dir> for the default
+L<Catalyst::Controller::SimpleCAS::Store::File> store class. 
+
+The rationale behind the name 'store_path' instead of 'store_dir' as it becomes in the default store
+is the notion that a single "path" argument is all that most Stores need, and different stores may
+treat this value as something other than a filesystem directory, so it was intentionally given the
+more ambiguous name. For most users that will use basic/default options, these details aren't important.
+
+=head2 store_args
+
+Optional options (HashRef) to supply when contructing the Store. This is only needed for custom
+Stores which need more options beyond store_path.
 
 =head2 Store
 
@@ -487,6 +593,30 @@ those outside functionalities next to this controller.
 
 =head1 METHODS
 
+=head2 fetch
+
+Convenience method to fetch the content (as a raw string/scalar) associated with a cas_id string
+which can be simply be the 40-character checksum by itself, or the checksum with a filename
+as generated by RapidApp's C<cas_link> and C<cas_img> column profiles.
+
+This method is provided as sugar for the purposes of interacting with the CAS from backend 
+scripts/code, rather than via HTTP requests to the controller actions.
+
+=head2 fetch_fh
+
+Like C<fetch> but returns the content as a filehandle (i.e. L<IO::File>, or whatever IO object
+the given Store returns).
+
+=head2 add
+
+Convenience method to add content to the CAS and return the checksum. Content argument can be 
+supplied as a simple Scalar (i.e. raw string/data), a ScalarRef, a filehandle (i.e. an object 
+which derives from L<IO::Handle> or otherwise is an object with an appropriate C<'getlines'>
+method, or a filesystem path.
+
+This method is provided as sugar for the purposes of interacting with the CAS from backend 
+scripts/code, rather than via HTTP requests to the controller actions.
+
 =head2 Content
 
 Not usually called directly
@@ -514,6 +644,10 @@ Not usually called directly
 =head1 SEE ALSO
 
 =over
+
+=item *
+
+L<Catalyst::Plugin::SimpleCAS>
 
 =item *
 
