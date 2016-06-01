@@ -2,7 +2,7 @@ package Catalyst::Plugin::SimpleCAS;
 use strict;
 use warnings;
 
-our $VERSION = '0.999'; # pre-release version number -- will be '1.000' when released to CPAN
+our $VERSION = '1.000';
 
 use Moose::Role;
 use namespace::autoclean;
