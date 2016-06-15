@@ -105,7 +105,7 @@ sub fetch_content_fh {
   return undef unless ( -f $file);
   
   my $fh = IO::File->new();
-  $fh->open('< ' . $file) or die "Failed to open $file for reading.";
+  $fh->open($file, '<:raw') or die "Failed to open $file for reading.";
   
   return $fh;
 }
@@ -116,8 +116,7 @@ sub file_checksum {
   my $file = shift;
   
   my $FH = IO::File->new();
-  $FH->open('< ' . $file) or die "$! : $file\n";
-  $FH->binmode;
+  $FH->open($file, '<:raw') or die "$! : $file\n";
 
   my $sha1 = Digest::SHA1->new->addfile($FH)->hexdigest;
   $FH->close;

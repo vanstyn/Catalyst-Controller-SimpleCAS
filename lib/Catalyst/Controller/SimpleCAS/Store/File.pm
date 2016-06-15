@@ -113,7 +113,7 @@ sub fetch_content {
   my $file = $self->checksum_to_path($checksum);
   return undef unless ( -f $file);
   
-  return io($file)->slurp;
+  return io($file)->binary->slurp;
 }
 
 sub content_exists {

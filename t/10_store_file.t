@@ -28,7 +28,7 @@ my $file_cas= new_ok 'Catalyst::Controller::SimpleCAS::Store::File',
 # Write a dummy file to the system temp path to simulate what Catalyst would
 # use for a file upload.
 my $origin_file= file(tmpdir(), 'incoming.txt');
-$origin_file->spew("This file simulates a Catalyst upload to the temp directory\n");
+$origin_file->spew(iomode => '>:raw', "This file simulates a Catalyst upload to the temp directory\n");
 
 my $cksum= $file_cas->add_content_file_mv($origin_file);
 is( $cksum, '437c659b4c0fea1304edea50c2cdd420f8c0f6f6', 'file hashed correctly' );
