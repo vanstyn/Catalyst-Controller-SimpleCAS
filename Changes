@@ -1,5 +1,8 @@
 Revision history for perl module Catalyst::Controller::SimpleCAS
 
+1.001 2017-04-05
+    - Use :raw mode on file handles - PR #6 (NERDVANA)
+
 1.000 2016-06-01
     - First "official" production release (i.e. can be used beyond RapidApp)
     - More complete documentation (VANSTYN)

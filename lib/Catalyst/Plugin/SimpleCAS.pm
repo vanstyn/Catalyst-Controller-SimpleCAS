@@ -2,7 +2,7 @@ package Catalyst::Plugin::SimpleCAS;
 use strict;
 use warnings;
 
-our $VERSION = '1.000';
+our $VERSION = '1.001';
 
 use Moose::Role;
 use namespace::autoclean;
